@@ -1,9 +1,17 @@
+from datetime import date, datetime, time as time_type
 from pydantic import BaseModel, EmailStr
-from datetime import date, datetime
 from typing import Optional, List
-from models.models import UserType, AppointmentStatus, RequestStatus
 
-# User schemas
+from models.models import (
+    UserType,
+    AppointmentStatus,
+    RequestStatus
+)
+
+# -----------------------------------------
+# USER SCHEMAS
+# -----------------------------------------
+
 class UserBase(BaseModel):
     email: EmailStr
     name: str
@@ -35,7 +43,11 @@ class Token(BaseModel):
     token_type: str
     user: User
 
-# Patient schemas
+
+# -----------------------------------------
+# PATIENT SCHEMAS
+# -----------------------------------------
+
 class PatientBase(BaseModel):
     name: str
     email: EmailStr
@@ -49,19 +61,36 @@ class Patient(PatientBase):
     id: int
     age: int
     status: str
+    notes: Optional[str] = ""
     psychologist_id: Optional[int] = None
     total_sessions: Optional[int] = 0
+    last_session: Optional[datetime] = None
     created_at: datetime
 
     class Config:
         from_attributes = True
 
-# Appointment schemas
+class PatientUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    birth_date: Optional[date] = None
+    psychologist_id: Optional[int] = None
+    status: Optional[str] = None
+    notes: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+# -----------------------------------------
+# APPOINTMENT SCHEMAS
+# -----------------------------------------
+
 class AppointmentBase(BaseModel):
     patient_id: int
     psychologist_id: int
     date: date
-    time: str
+    time: time_type
     description: str
     duration: Optional[int] = 50
 
@@ -77,18 +106,26 @@ class AppointmentUpdate(BaseModel):
     notes: Optional[str] = None
     full_report: Optional[str] = None
 
+    class Config:
+        from_attributes = True
+
 class Appointment(AppointmentBase):
     id: int
     status: AppointmentStatus
-    notes: str
-    full_report: str
+    notes: Optional[str] = ""
+    full_report: Optional[str] = ""
     created_at: datetime
 
     class Config:
         from_attributes = True
 
-# Request schemas
+
+# -----------------------------------------
+# REQUEST SCHEMAS
+# -----------------------------------------
+
 class RequestBase(BaseModel):
+    patient_id: int
     patient_name: str
     patient_email: EmailStr
     patient_phone: str
@@ -115,7 +152,11 @@ class Request(RequestBase):
     class Config:
         from_attributes = True
 
-# Psychologist schemas
+
+# -----------------------------------------
+# PSYCHOLOGIST SCHEMAS
+# -----------------------------------------
+
 class Psychologist(BaseModel):
     id: int
     name: str
@@ -125,7 +166,11 @@ class Psychologist(BaseModel):
     class Config:
         from_attributes = True
 
-# Report schemas
+
+# -----------------------------------------
+# REPORT SCHEMAS
+# -----------------------------------------
+
 class ReportStats(BaseModel):
     active_patients: int
     total_sessions: int
